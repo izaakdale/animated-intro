@@ -4,10 +4,24 @@ import { useEffect, useLayoutEffect, useRef } from 'react';
 
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import Lenis from '@studio-freight/lenis';
 
 gsap.registerPlugin(ScrollTrigger);
 
 function App() {
+  const lenis = new Lenis();
+
+  lenis.on('scroll', (e) => {
+    console.log(e);
+  });
+
+  function raf(time) {
+    lenis.raf(time);
+    requestAnimationFrame(raf);
+  }
+
+  requestAnimationFrame(raf);
+
   const comp = useRef(null);
   useLayoutEffect(() => {
     let ctx = gsap.context(() => {
@@ -44,12 +58,12 @@ function App() {
   }, []);
 
   const imgRef = useRef(null);
+  const textRef = useRef(null);
 
   useEffect(() => {
-    const el = imgRef.current;
-
+    const imgEl = imgRef.current;
     gsap.fromTo(
-      el,
+      imgEl,
       { xPercent: '-150', opacity: 0, rotate: 0 },
       {
         xPercent: '0',
@@ -57,10 +71,24 @@ function App() {
         opacity: 1,
         rotate: 360,
         scrollTrigger: {
-          trigger: el,
+          trigger: imgEl,
         },
       }
     );
+
+    const textEl = textRef.current;
+
+    let t2 = gsap.timeline({
+      scrollTrigger: {
+        trigger: textEl,
+        start: '-100% 70%',
+        end: '200% 70%',
+        scrub: true,
+        markers: false,
+      },
+    });
+
+    t2.fromTo(textEl, { x: -400 }, { x: 400 });
   }, []);
 
   return (
@@ -83,6 +111,11 @@ function App() {
       </div>
       <div className='h-screen flex bg-gray-950 justify-center place-items-center'>
         <img src={ReactLogo} alt='' className='h-36' ref={imgRef} />
+      </div>
+      <div className='h-screen flex bg-gray-950 justify-center place-items-center'>
+        <p className='text-5xl' ref={textRef}>
+          Hello, my name is Izaak
+        </p>
       </div>
     </div>
   );
